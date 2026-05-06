@@ -50,7 +50,7 @@ class Game {
     : _wordToGuess = Word.empty(),
       _guesses = List<Word>.filled(maxGuesses, Word.empty());
 
-  static const String _baseUrl = "https://mhealthapp.onrender.com"; //'http://localhost:3000'; // Usa 'http://10.0.2.2:3000' per l'emulatore Android
+  static const String _baseUrl = "https://mhealthapp.onrender.com";
 
   /// The maximum number of guesses allowed in this game.
   final int maxGuesses;
