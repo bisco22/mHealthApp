@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
-//import 'registration_page.dart';
-import 'registration_todo.dart';
+import 'registration_page.dart';
+//import 'registration_todo.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 class LoginPage extends StatefulWidget {
@@ -30,39 +32,58 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final isCorrect = _usernameController.text == _correctUsername &&
-          _passwordController.text == _correctPassword;
       setState(() {
         _isLoading = true;
       });
-      await Future.delayed(const Duration(seconds: 1));
 
-      if (!mounted) return;
-
-      if (isCorrect) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage(username: _usernameController.text)),
+      try {
+        final response = await http.post(
+          Uri.parse('https://mhealthapp.onrender.com/auth/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'username': _usernameController.text,
+            'password': _passwordController.text,
+          }),
         );
-      } else {
+
+        if (!mounted) return;
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage(username: data['username'])),
+          );
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+          final errorData = jsonDecode(response.body);
+          _showErrorDialog(errorData['message'] ?? 'Accesso fallito');
+        }
+      } catch (e) {
         setState(() {
           _isLoading = false;
         });
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Accesso fallito'),
-            content: const Text('Le credenziali inserite non sono corrette.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('RIPROVA'),
-              ),
-            ],
-          ),
-        );
+        _showErrorDialog('Errore di connessione al server. Riprova più tardi.');
       }
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Accesso fallito'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

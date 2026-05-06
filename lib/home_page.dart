@@ -212,8 +212,6 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    _buildInfoRow(Icons.email, 'Email', 'admin@mhealth.com'),
-                    const Divider(color: Colors.white12),
                     _buildInfoRow(Icons.emoji_events, 'Ultimo Punteggio', '$_score / ${_questions.length}'),
                     const Divider(color: Colors.white12),
                     _buildInfoRow(Icons.star, 'Record Personale', '$_bestScore'),
